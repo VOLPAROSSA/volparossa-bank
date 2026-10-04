@@ -1,0 +1,9 @@
+[package]
+name = "volparossa-bank-research"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-only"
+description = "Offline research-only portfolio arithmetic; no trading or investment service"
+publish = false
+
+[dependencies]
