@@ -20,7 +20,6 @@ jobs:
     env:
       CARGO_BUILD_JOBS: '2'
       CARGO_TERM_COLOR: always
-      TMPDIR: ${{ runner.temp }}
     steps:
       - name: Check out source without retained credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,4 +38,6 @@ jobs:
       - name: Lint the core-backed adapter
         run: cargo +1.98.1 clippy --locked --offline --manifest-path paper-payments/Cargo.toml --all-targets -- -D warnings
       - name: Exercise local TEST-unit intents and actual crash recovery
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: cargo +1.98.1 test --locked --offline --manifest-path paper-payments/Cargo.toml --all-targets
