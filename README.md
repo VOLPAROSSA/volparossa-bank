@@ -53,7 +53,7 @@ for relay/cache/compute contributions.
 [Research and architecture](docs/RESEARCH.md) compares payment protocols, explains
 the ownership model, and distinguishes internal corrections from recovery after
 external settlement. The proposed core contract is documented in
-[VOLPAROSSA](https://github.com/VOLPAROSSA/volparossa/tree/feature/transaction-layer-research/docs/services/TRANSACTION_LAYER.md).
+[VOLPAROSSA](https://github.com/VOLPAROSSA/volparossa/blob/main/docs/services/TRANSACTION_LAYER.md).
 
 Distributed consensus, authenticated positions, actual securities ownership,
 external payment gateways, market operation, private AML processing and recovery
