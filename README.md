@@ -1,3 +1,5 @@
+![Project VOLPAROSSA Bank — golden balance scales, a globe and a network of connections](docs/assets/banner-volparossa-bank.png)
+
 # Project VOLPAROSSA Bank
 
 A research application for participant-owned portfolios and cooperative payments,
