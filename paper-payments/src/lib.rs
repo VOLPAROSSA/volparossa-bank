@@ -96,7 +96,7 @@ impl Intent {
         authorization: Authorization,
     ) -> Result<Self, Error> {
         let ledger = core.ledger_id();
-        let signed = SignedCommand::sign(
+        let command_bytes = SignedCommand::sign(
             ledger,
             signer,
             command,
@@ -109,8 +109,8 @@ impl Intent {
             version: 1,
             ledger: ledger.to_vec(),
             operation: command.operation_id.to_vec(),
-            signed_sha256: Sha256::digest(&signed).to_vec(),
-            signed,
+            signed_sha256: Sha256::digest(&command_bytes).to_vec(),
+            signed: command_bytes,
         };
         if binding(&retained, core)? != command {
             return Err(Error::Binding);
