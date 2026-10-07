@@ -1,0 +1,43 @@
+name: Paper payments
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: paper-payments-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      CARGO_BUILD_JOBS: '2'
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Check out source without retained credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy
+      - name: Fetch the locked test adapter dependencies
+        run: cargo +1.98.1 fetch --locked --manifest-path paper-payments/Cargo.toml
+      - name: Check formatting
+        run: |
+          cargo +1.98.1 fmt --all -- --check
+          cargo +1.98.1 fmt --manifest-path paper-payments/Cargo.toml --all -- --check
+      - name: Check the dependency-free portfolio prototype
+        run: cargo +1.98.1 test --locked --offline
+      - name: Lint the core-backed adapter
+        run: cargo +1.98.1 clippy --locked --offline --manifest-path paper-payments/Cargo.toml --all-targets -- -D warnings
+      - name: Exercise local TEST-unit intents and actual crash recovery
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: cargo +1.98.1 test --locked --offline --manifest-path paper-payments/Cargo.toml --all-targets

@@ -2,15 +2,16 @@
 
 # Project VOLPAROSSA Bank
 
-A research application for participant-owned portfolios and cooperative payments,
-built on the proposed VOLPAROSSA Transaction-layer.
+A developing application for participant-owned portfolios and cooperative payments,
+with portfolio research and a first executable connection to the VOLPAROSSA
+Transaction-layer using fictitious TEST units.
 
 The idea is to hold investments with participants, coordinate a common portfolio
 method and exchange value through the network. External payment and securities
 connections should complement that internal system, without a single application
 operator becoming the owner of everyone's investments.
 
-**Research only. No banking service, customer deposits, trading, custody or real
+**Research and local test-value prototypes only. No banking service, customer deposits, trading, custody or real
 payments are available.** Portfolio value can fall. This is neither investment
 advice nor a deposit guarantee; legal qualification is required before handling
 real money or securities.
@@ -37,6 +38,25 @@ or determine which legal limits apply.
 cargo test --offline
 ```
 
+## Core-backed paper payments
+
+The separate `paper-payments` Rust package calls the actual, commit-pinned core
+transaction library. It saves an owner's signed intent before submitting it, then
+uses the core for reservations, transfers, cancellation and historical receipts.
+Bank does not maintain a second balance ledger or turn portfolio scores into money.
+
+After a restart, Bank verifies the retained command and reconciles it with the
+core. Retrying submits exactly the original bytes: it cannot quietly change the
+amount, recipient, nonce or expiry, or create a second debit. A missing receipt
+means "not recorded at this observation," not proof of a failed payment.
+
+Seven focused tests pass, including actual application-process kills before and
+after a core commit, reopening, expired retries, conflicting signed commands and
+private-file checks. The runnable example ends at 30/70 TEST units after reopening.
+These are local application-to-core results, **not distributed settlement**.
+
+[Run the example and understand the boundaries →](docs/PAPER_PAYMENTS.md)
+
 ## Division of responsibilities
 
 - **Bank application:** portfolio research, position presentation, ownership
@@ -54,7 +74,7 @@ for relay/cache/compute contributions.
 
 [Research and architecture](docs/RESEARCH.md) compares payment protocols, explains
 the ownership model, and distinguishes internal corrections from recovery after
-external settlement. The proposed core contract is documented in
+external settlement. The developing core contract is documented in
 [VOLPAROSSA](https://github.com/VOLPAROSSA/volparossa/blob/main/docs/services/TRANSACTION_LAYER.md).
 
 Distributed consensus, authenticated positions, actual securities ownership,
