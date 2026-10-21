@@ -2,14 +2,18 @@
 
 # Project VOLPAROSSA Bank
 
-A developing application for participant-owned portfolios and cooperative payments,
-with portfolio research and a first executable connection to the VOLPAROSSA
-Transaction-layer using fictitious TEST units.
+**Explore a shared portfolio method while keeping ownership and payment authority explicit.**
 
-The idea is to hold investments with participants, coordinate a common portfolio
-method and exchange value through the network. External payment and securities
-connections should complement that internal system, without a single application
-operator becoming the owner of everyone's investments.
+How could people coordinate investments without handing ownership of everyone's
+holdings to one application operator? VOLPAROSSA Bank is developing that idea
+alongside cooperative payments, starting with inspectable portfolio arithmetic
+and fictitious **TEST-unit** transfers.
+
+The reusable [VOLPAROSSA Transaction-layer](https://github.com/VOLPAROSSA/volparossa/blob/main/docs/services/TRANSACTION_LAYER.md)
+handles signed payment intent and transaction state. Bank owns the portfolio
+method and presentation. Help test [restart-safe paper payments](docs/PAPER_PAYMENTS.md)
+and make the [method's assumptions](docs/RESEARCH.md) reviewable before any real
+financial service is considered.
 
 **Research and local test-value prototypes only. No banking service, customer deposits, trading, custody or real
 payments are available.** Portfolio value can fall. This is neither investment
