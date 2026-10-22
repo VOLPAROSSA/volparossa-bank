@@ -1,6 +1,6 @@
 ![Project VOLPAROSSA Bank — golden balance scales, a globe and a network of connections](docs/assets/banner-volparossa-bank.png)
 
-# Project VOLPAROSSA Bank
+# VOLPAROSSA Bank
 
 **Explore a shared portfolio method while keeping ownership and payment authority explicit.**
 
