@@ -79,7 +79,7 @@ impl OrderedIntent {
         command: Command,
         authorization: Authorization,
     ) -> Result<Self, Error> {
-        let signed = SignedCommand::sign_ordered(
+        let command_bytes = SignedCommand::sign_ordered(
             core.ledger_id(),
             signer,
             command,
@@ -92,8 +92,8 @@ impl OrderedIntent {
             version: ORDERED_INTENT_VERSION,
             ledger: core.ledger_id().to_vec(),
             operation: command.operation_id.to_vec(),
-            signed_sha256: Sha256::digest(&signed).to_vec(),
-            signed,
+            signed_sha256: Sha256::digest(&command_bytes).to_vec(),
+            signed: command_bytes,
         };
         if binding(&retained, core)? != command {
             return Err(Error::Binding);
