@@ -464,9 +464,9 @@ dependencies = [
 
 [[package]]
 name = "hpke"
-version = "0.14.0"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd5130e119706b4d8c2180da6126f7e60b6c38c2d340d539219f57051f0a7af7"
+checksum = "a5324110b02044183df000f0bd7d2d7e61f1000631508627e77f63983b6fdffb"
 dependencies = [
  "aead",
  "chacha20poly1305",
@@ -960,7 +960,7 @@ dependencies = [
 [[package]]
 name = "volparossa-core"
 version = "0.1.0"
-source = "git+https://github.com/VOLPAROSSA/volparossa?rev=4619c1c10ff1bbad8b226c5fc801615a0d2c4758#4619c1c10ff1bbad8b226c5fc801615a0d2c4758"
+source = "git+https://github.com/VOLPAROSSA/volparossa?rev=edf569300acbdf5e7715b5192ffbb293235b15ab#edf569300acbdf5e7715b5192ffbb293235b15ab"
 dependencies = [
  "serde",
  "thiserror",
@@ -969,7 +969,7 @@ dependencies = [
 [[package]]
 name = "volparossa-protocol"
 version = "0.1.0"
-source = "git+https://github.com/VOLPAROSSA/volparossa?rev=4619c1c10ff1bbad8b226c5fc801615a0d2c4758#4619c1c10ff1bbad8b226c5fc801615a0d2c4758"
+source = "git+https://github.com/VOLPAROSSA/volparossa?rev=edf569300acbdf5e7715b5192ffbb293235b15ab#edf569300acbdf5e7715b5192ffbb293235b15ab"
 dependencies = [
  "ed25519-dalek",
  "getrandom 0.4.3",
@@ -986,7 +986,7 @@ dependencies = [
 [[package]]
 name = "volparossa-transaction"
 version = "0.1.0"
-source = "git+https://github.com/VOLPAROSSA/volparossa?rev=4619c1c10ff1bbad8b226c5fc801615a0d2c4758#4619c1c10ff1bbad8b226c5fc801615a0d2c4758"
+source = "git+https://github.com/VOLPAROSSA/volparossa?rev=edf569300acbdf5e7715b5192ffbb293235b15ab#edf569300acbdf5e7715b5192ffbb293235b15ab"
 dependencies = [
  "ed25519-dalek",
  "prost",

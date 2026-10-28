@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-//! Owner-local paper payments using the real core TEST-unit transition executor.
+//! Paper payment intents for the real core owner-local and ordered TEST executors.
 //!
 //! The application retains only an immutable signed intent, never a second balance
 //! ledger. There is no daemon, network, gateway, real asset, portfolio conversion,
@@ -9,6 +9,9 @@
 #![forbid(unsafe_code)]
 
 mod disk;
+mod ordered;
+
+pub use ordered::OrderedIntent;
 
 use std::{fs::File, path::Path};
 
@@ -190,22 +193,30 @@ impl Intent {
     }
 
     fn check_receipt(&self, receipt: &Receipt) -> Result<(), Error> {
-        let (reservation, state) = match self.command.action {
-            Action::Reserve { .. } => (self.command.operation_id, ReservationState::Reserved),
-            Action::Commit { reservation_id } => (reservation_id, ReservationState::Committed),
-            Action::Cancel { reservation_id } => (reservation_id, ReservationState::Cancelled),
-        };
-        if receipt.ledger_id.as_slice() != self.retained.ledger
-            || receipt.operation_id.as_slice() != self.retained.operation
-            || receipt.command_sha256.as_slice() != self.retained.signed_sha256
-            || receipt.sequence == 0
-            || receipt.reservation_id != reservation
-            || receipt.state != state
-        {
-            return Err(Error::Binding);
-        }
-        Ok(())
+        check_receipt(&self.retained, self.command, receipt)
     }
+}
+
+fn check_receipt(
+    retained: &RetainedIntent,
+    command: Command,
+    receipt: &Receipt,
+) -> Result<(), Error> {
+    let (reservation, state) = match command.action {
+        Action::Reserve { .. } => (command.operation_id, ReservationState::Reserved),
+        Action::Commit { reservation_id } => (reservation_id, ReservationState::Committed),
+        Action::Cancel { reservation_id } => (reservation_id, ReservationState::Cancelled),
+    };
+    if receipt.ledger_id.as_slice() != retained.ledger
+        || receipt.operation_id.as_slice() != retained.operation
+        || receipt.command_sha256.as_slice() != retained.signed_sha256
+        || receipt.sequence == 0
+        || receipt.reservation_id != reservation
+        || receipt.state != state
+    {
+        return Err(Error::Binding);
+    }
+    Ok(())
 }
 
 fn binding(retained: &RetainedIntent, core: &Store) -> Result<Command, Error> {
