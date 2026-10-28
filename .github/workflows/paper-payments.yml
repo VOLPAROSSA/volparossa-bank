@@ -5,6 +5,17 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      resolve_core_lock:
+        description: Resolve only the pinned Core lock dependency for independent review
+        type: boolean
+        default: false
+        required: true
+      bank_revision:
+        description: Exact reviewed Bank commit required for lock resolution
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -15,6 +26,7 @@ concurrency:
 
 jobs:
   offline-tests:
+    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.resolve_core_lock) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
@@ -41,3 +53,129 @@ jobs:
         env:
           TMPDIR: ${{ runner.temp }}
         run: cargo +1.98.1 test --locked --offline --manifest-path paper-payments/Cargo.toml --all-targets
+
+  resolve-core-lock:
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.resolve_core_lock &&
+      github.repository == 'VOLPAROSSA/volparossa-bank'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      BANK_REVISION: ${{ inputs.bank_revision }}
+      CARGO_TERM_COLOR: never
+      CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
+      GIT_CONFIG_NOSYSTEM: '1'
+      GIT_CONFIG_SYSTEM: /dev/null
+      GIT_CONFIG_GLOBAL: /dev/null
+      GIT_ALLOW_PROTOCOL: https
+      GIT_TERMINAL_PROMPT: '0'
+      GIT_ASKPASS: /usr/bin/false
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Bind the explicit reviewed revision before installation
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          python3 -B - <<'PY'
+          import os,re
+          revision=os.environ['BANK_REVISION']
+          assert re.fullmatch('[0-9a-f]{40}',revision)
+          assert revision==os.environ['GITHUB_SHA']==os.environ['GITHUB_WORKFLOW_SHA']
+          PY
+      - name: Check out the exact source without retained credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Validate the fixed Core pin and create private resolver output
+        id: source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$BANK_REVISION"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          python3 -B - <<'PY'
+          import pathlib,tomllib
+          manifest=tomllib.loads(pathlib.Path('paper-payments/Cargo.toml').read_text())
+          assert manifest['dependencies']['volparossa-transaction']=={
+            'git':'https://github.com/VOLPAROSSA/volparossa',
+            'rev':'edf569300acbdf5e7715b5192ffbb293235b15ab'}
+          PY
+          umask 077
+          lock_cargo="$RUNNER_TEMP/bank-core-lock-cargo-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          lock_evidence="$RUNNER_TEMP/bank-core-lock-evidence-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          test ! -e "$lock_cargo" && test ! -L "$lock_cargo"
+          test ! -e "$lock_evidence" && test ! -L "$lock_evidence"
+          mkdir -m 0700 "$lock_cargo" "$lock_evidence"
+          printf 'CARGO_HOME=%s\nLOCK_EVIDENCE=%s\n' "$lock_cargo" "$lock_evidence" >> "$GITHUB_ENV"
+      - name: Install the existing Bank toolchain and record its actual versions
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.98.1 --profile minimal
+          python3 -B - <<'PY'
+          import json,os,pathlib,subprocess
+          versions={name:subprocess.check_output([name,'+1.98.1','--version'],text=True,timeout=30).strip()
+            for name in ('cargo','rustc')}
+          assert all(0<len(value)<=512 for value in versions.values())
+          pathlib.Path(os.environ['LOCK_EVIDENCE'],'versions.json').write_text(json.dumps(versions,sort_keys=True)+'\n')
+          PY
+      - name: Resolve only the exact Core transaction dependency
+        id: resolve
+        run: >-
+          cargo +1.98.1 update --manifest-path paper-payments/Cargo.toml
+          -p volparossa-transaction --precise edf569300acbdf5e7715b5192ffbb293235b15ab
+      - name: Verify the resulting graph with locked dependency acquisition
+        id: fetch
+        run: cargo +1.98.1 fetch --locked --manifest-path paper-payments/Cargo.toml
+      - name: Retain the bounded lock diff and exact-source receipt for review
+        if: always() && steps.source.outcome == 'success'
+        env:
+          RESOLVE_OUTCOME: ${{ steps.resolve.outcome }}
+          FETCH_OUTCOME: ${{ steps.fetch.outcome }}
+        run: |
+          set -euo pipefail
+          python3 -B - <<'PY'
+          import hashlib,json,os,pathlib,subprocess,tomllib
+          def git(*args):
+            return subprocess.check_output(['git','--no-pager',*args],timeout=30)
+          assert git('rev-parse','HEAD').decode().strip()==os.environ['BANK_REVISION']
+          changed=set(git('diff','--name-only','HEAD').decode().splitlines())
+          assert changed <= {'paper-payments/Cargo.lock'}
+          assert not git('ls-files','--others','--exclude-standard').strip()
+          output=pathlib.Path(os.environ['LOCK_EVIDENCE'])
+          before=git('show','HEAD:paper-payments/Cargo.lock')
+          after=pathlib.Path('paper-payments/Cargo.lock').read_bytes()
+          difference=git('diff','--no-ext-diff','--no-color','HEAD','--','paper-payments/Cargo.lock')
+          assert 0<len(before)<=4*1024*1024 and 0<len(after)<=4*1024*1024
+          assert len(difference)<=512*1024
+          packages=tomllib.loads(after.decode())['package']
+          transaction=[package for package in packages if package['name']=='volparossa-transaction']
+          expected='git+https://github.com/VOLPAROSSA/volparossa?rev=edf569300acbdf5e7715b5192ffbb293235b15ab#edf569300acbdf5e7715b5192ffbb293235b15ab'
+          assert len(transaction)==1 and transaction[0]['source']==expected
+          versions_path=output/'versions.json'
+          versions=json.loads(versions_path.read_bytes()) if versions_path.exists() else None
+          digest=lambda raw:hashlib.sha256(raw).hexdigest()
+          receipt=dict(version=1,kind='bank-core-lock-resolution',bank_revision=os.environ['BANK_REVISION'],
+            bank_tree=git('rev-parse','HEAD^{tree}').decode().strip(),
+            core_revision='edf569300acbdf5e7715b5192ffbb293235b15ab',
+            manifest_sha256=digest(pathlib.Path('paper-payments/Cargo.toml').read_bytes()),
+            lock_before_sha256=digest(before),lock_after_sha256=digest(after),
+            diff_sha256=digest(difference),packages=len(packages),toolchain_versions=versions,
+            toolchain_authority='existing-bank-rustup-version-pin-not-core-authenticated-provisioning',
+            resolve_outcome=os.environ['RESOLVE_OUTCOME'],fetch_locked_outcome=os.environ['FETCH_OUTCOME'],
+            independent_review_required=True,project_builds=False,project_tests=False,source_pushed=False)
+          (output/'Cargo.lock').write_bytes(after)
+          (output/'Cargo.lock.diff').write_bytes(difference)
+          (output/'receipt.json').write_text(json.dumps(receipt,sort_keys=True)+'\n')
+          PY
+      - name: Upload only the resolver candidate and review metadata
+        if: always() && steps.source.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bank-core-lock-resolution-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.LOCK_EVIDENCE }}/Cargo.lock
+            ${{ env.LOCK_EVIDENCE }}/Cargo.lock.diff
+            ${{ env.LOCK_EVIDENCE }}/receipt.json
+          if-no-files-found: warn
+          retention-days: 14
