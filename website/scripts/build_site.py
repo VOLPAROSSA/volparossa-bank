@@ -34,7 +34,7 @@ def theme_values():
     navigation = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(navigation)
     nav = json.loads((THEME / "data/navigation.json").read_text())
-    # The project can link to itself before the central registry goes live.
+    # Resolve the project’s own entry in the pinned shared navigation.
     for item in nav["main"]:
         for app in item.get("children", []):
             if app["name"] == "Bank":
@@ -56,6 +56,9 @@ def illustration(name, widths, height, sizes, mobile=False):
         crop = (f'<source media="(max-width: 700px)" type="image/webp" '
                 f'srcset="{sources(base + "-mobile", [480, 800])}" sizes="100vw">'
                 f'<source media="(max-width: 700px)" srcset="{base}-mobile.jpg">')
+        crop += (f'<source media="(max-width: 900px)" type="image/webp" '
+                 f'srcset="{sources(base + "-tablet", [600, 960])}" sizes="54vw">'
+                 f'<source media="(max-width: 900px)" srcset="{base}-tablet.jpg">')
     load = 'loading="eager" fetchpriority="high"' if mobile else 'loading="lazy"'
     return (f'<picture>{crop}<source type="image/webp" srcset="{sources(base, widths)}" sizes="{sizes}">'
             f'<img src="{base}.jpg" width="{widths[-1]}" height="{height}" alt="" {load} decoding="async"></picture>')
@@ -63,10 +66,7 @@ def illustration(name, widths, height, sizes, mobile=False):
 
 def components():
     art = json.loads((SRC / "art.json").read_text())
-    parts = {name: illustration(name, **data) for name, data in art.items()}
-    for name in ["group", "person", "contract", "database"]:
-        parts[name + "_icon"] = (SRC / "icons" / f"{name}.svg").read_text()
-    return parts
+    return {name: illustration(name, **data) for name, data in art.items()}
 
 
 def build(output, production):
@@ -90,8 +90,8 @@ def build(output, production):
     values = {**theme_values(), **components(), "title": "VOLPAROSSA Bank | Portfolio and payment research",
               "description": "Explore a shared portfolio method and a local payment test with fictitious assets and TEST units.",
               "root": "", "canonical": CANONICAL, "body_class": "bank-page",
-              "social_image": CANONICAL + "assets/bank/social.jpg",
-              "social_alt": "Daylight falls across a leather ledger and a brass balance in the counting house.",
+              "social_image": CANONICAL + "assets/bank/workshop-social.jpg",
+              "social_alt": "A glass-enclosed precision balance and an open box of brass calibration weights on the workshop bench.",
               "head_extra": f'<meta name="robots" content="{robots}"><link rel="stylesheet" href="assets/bank.css">',
               "repository": REPO, "research_url": REPO + "/blob/main/docs/RESEARCH.md",
               "test_url": REPO + "/blob/main/docs/PAPER_PAYMENTS.md",

@@ -28,6 +28,12 @@ for (const engine of (process.env.QA_ENGINES || 'chromium').split(',')) {
         assert(scrollWidth <= width + 1, engine + ' ' + mode + ' overflows at ' + width + ': ' + scrollWidth);
       }
       await checkOverflow('default');
+      const variant = width <= 700 ? 'workshop-mobile-' : width <= 900 ? 'workshop-tablet-' : 'workshop-';
+      const heroSource = await page.locator('.workshop-photo img').evaluate(image => new URL(image.currentSrc).pathname);
+      assert(heroSource.includes('/assets/bank/' + variant));
+      const weights = page.getByRole('table', {name: 'Illustrative target weights'});
+      assert.equal(await weights.getByRole('rowheader', {name: 'Alder Works'}).count(), 1);
+      assert.equal(await weights.getByRole('cell', {name: '40%'}).count(), 1);
       if ([1440,390].includes(width)) await page.screenshot({path: artifacts + engine + '-' + width + '.png', fullPage: true});
       await page.keyboard.press('Tab');
       assert.equal(await page.locator(':focus').textContent(), 'Skip to content');

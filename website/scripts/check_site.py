@@ -85,18 +85,22 @@ def check(folder, production):
             assert not asset.startswith("/") and (folder / asset).is_file(), asset
     for im in page.images:
         assert all(attr in im for attr in ("alt", "width", "height"))
-    assert (folder / "assets/bank/social.jpg").is_file()
-    for n in ("paper", "oak"):
-        assert (folder / f"assets/bank/{n}.webp").is_file()
+    social_path = "assets/bank/workshop-social.jpg"
+    assert page.meta["og:image"] == page.meta["og:url"] + social_path
+    assert page.meta["og:image:alt"] == page.meta["twitter:image:alt"] and "precision balance" in page.meta["og:image:alt"]
+    assert (folder / social_path).is_file() and (folder / "assets/bank/workpaper.webp").is_file()
+    assert {"assets/bank/workshop-mobile-480.webp", "assets/bank/workshop-mobile-800.webp",
+            "assets/bank/workshop-mobile.jpg", "assets/bank/workshop-tablet-600.webp",
+            "assets/bank/workshop-tablet-960.webp", "assets/bank/workshop-tablet.jpg"}.issubset(page.assets)
     assert len(page.tables) == 3
-    book, score, balances = [t[1:] for t in page.tables]
+    weights, score, balances = [t[1:] for t in page.tables]
     percent = lambda text: Decimal(text.removesuffix("%")) / 100
     scores = [percent(row[1]) * percent(row[2]) for row in score]
     total = sum(scores)
     assert total == Decimal("0.010")
     for row, calculated in zip(score, scores):
         assert Decimal(row[3]) == calculated and percent(row[4]) == calculated / total
-    assert book == [[row[0], row[4]] for row in score if Decimal(row[3]) > 0]
+    assert weights == [[row[0], row[4]] for row in score if Decimal(row[3]) > 0]
     assert score[-1][4] == "0%" and sum(percent(r[4]) for r in score) == 1
     assert balances == [["Start", "100 TEST", "0 TEST"], ["After transfer", "30 TEST", "70 TEST"],
                         ["After restart and retry", "30 TEST", "70 TEST"]]

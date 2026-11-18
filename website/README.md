@@ -42,11 +42,12 @@ Playwright browsers installed. QA_URL overrides the preview address.
 
 [Desktop render](review/desktop.webp) · [Mobile render](review/mobile.webp)
 
-- Compared the rendered desktop to the supplied counting-house reference. The opening
-  composition retains the gabled window, vase, quill, ledger and two-pan balance.
-  The names and weights sit on separate leaves of the open book. Three pinned
-  documents precede the darker payment test. A facade engraving, research ledgers
-  and a brass hand stamp finish the page.
+- Compared the rendered desktop with the owner's calibration-workshop concept.
+  The glass balance case and open weight box anchor the hero. The larger and
+  smaller brass weights carry live HTML labels. The inspection card, signed
+  instruction and three balance observations each have a distinct reading order.
+  A caliper and ruler frame the research status, followed by a workshop stamp
+  impression. Desktop and mobile review captures are linked above.
 - Checked 1440, 768, 390 and 320 CSS pixels, the skip link, keyboard disclosure,
   mobile menu, desktop hover, application links, direct anchor reloads, local
   font and image loading, the native UI without scripts or images, and 200% text.
@@ -58,7 +59,7 @@ Playwright browsers installed. QA_URL overrides the preview address.
 ## Sources and artwork
 
 The public research scope, inputs and payment sequence were checked against
-[Bank commit a7b9b65](https://github.com/VOLPAROSSA/volparossa-bank/tree/a7b9b65a3ab2cf3d6df195c61e26cebf3017b559),
+[Bank commit cf82aba](https://github.com/VOLPAROSSA/volparossa-bank/tree/cf82abae51fd7f7df27a871155d5312cb44ac51e),
 including AGENTS.md, README.md, docs/RESEARCH.md and docs/PAPER_PAYMENTS.md. Visitors
 can reach the current method, test record, execution instructions and Core
 transaction-layer documentation from the corresponding section.
@@ -69,13 +70,18 @@ are the unmodified source-only export of central theme 1.1.0 from
 The builder verifies the export checksums. The [theme notices](vendor/theme/notices),
 font licences, GitHub icon licence and repository GPL-3.0-only licence are retained.
 
-The project owner supplied the design reference “Concept 01 — De rekenkamer”.
-The seven decorative subjects in assets/bank are new AI-generated illustrations
-created for VOLPAROSSA from that reference. The original concept is not embedded
-or redistributed. The paper and oak backgrounds are material samples from the
-generated instruction and stacked-books images. Local WebP variants, JPEG
-fallbacks, the mobile crop and the 1200 × 630 social image are derivatives of
-that same artwork. The small outline symbols in src/icons were drawn for this
-page. These original website materials are provided with the repository under
-its licence to the extent rights apply. The VOLPAROSSA mark and third-party
-materials retain the terms in the shared notices.
+The owner supplied “Concept 02 — Het ijkatelier” as the design reference.
+Seven photographic subjects were generated with AI for VOLPAROSSA. The hero
+shows the balance case and a fitted weight box. The other scenes show a pair
+of brass weights, an inspection card and wooden stamp, an instruction with
+a magnifying glass, two handbooks, measuring instruments and a red stamp
+impression. A separate square composition of the hero serves tablets.
+The mobile and 1200 × 630 social crops come from the wide workshop photograph.
+The repeating paper texture comes from a blank area of the inspection card.
+The rendered page supplies the meaningful labels and values as HTML.
+Local responsive WebP and JPEG derivatives are distributed in assets/bank.
+The reference mockup is not embedded in the site or included in the repository.
+
+Original site materials are provided under the repository licence to the
+extent rights apply. The project mark and third-party theme assets retain the
+terms in the shared notices.
