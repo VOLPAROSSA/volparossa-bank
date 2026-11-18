@@ -1,0 +1,87 @@
+<section class="bank-intro paper" aria-labelledby="bank-title">
+  <div class="room-art">{{chamber}}</div>
+  <div class="bank-wrap"><div class="intro-copy">
+    <p class="product-name">VOLPAROSSA Bank</p>
+    <p class="bank-status">Research and simulation</p>
+    <h1 id="bank-title">A shared method.<br>Each participant’s say.</h1>
+    <p class="intro-lede">Explore a shared portfolio method and follow a signed test payment through a restart.</p>
+    <p class="service-note">Fictitious assets and TEST units only. No live banking or payment service is available.</p>
+    <div class="bank-actions"><a class="bank-button filled" href="#method">Explore the method <span aria-hidden="true">→</span></a><a class="bank-button" href="#payment-test">See the payment test <span aria-hidden="true">→</span></a></div>
+  </div></div>
+</section>
+<section class="method-band wood" id="method" aria-labelledby="method-title">
+  <div class="method-row bank-wrap">
+    <div class="method-copy loose-paper">
+      <p class="bank-kicker">Portfolio</p>
+      <h2 id="method-title">Where do the weights come from?</h2>
+      <p>Multiply return on invested capital (ROIC) by free cash flow yield. Divide each positive score by the sum of the scores to find its target weight.</p>
+      <p class="formula">Score = ROIC × FCF yield</p>
+    </div>
+    <div class="ledger-face">
+      {{ledger}}
+      <table class="ledger-table">
+        <caption>Illustrative target weights</caption>
+        <thead><tr><th scope="col">Asset</th><th scope="col">Target weight</th></tr></thead>
+        <tbody><tr><th scope="row">Alder Works</th><td>60%</td></tr><tr><th scope="row">Harbour Glass</th><td>40%</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="calculation paper"><div class="bank-wrap">
+    <details class="calculation-details"><summary>See the calculation</summary>
+      <div class="calculation-inner">
+        <table class="score-table"><caption>Worked example with fictitious companies</caption>
+          <thead><tr><th scope="col">Fictitious company</th><th scope="col">ROIC</th><th scope="col">FCF yield</th><th scope="col">Score</th><th scope="col">Target weight</th></tr></thead>
+          <tbody><tr><th scope="row">Alder Works</th><td><span class="cell-key" aria-hidden="true">ROIC</span>10%</td><td><span class="cell-key" aria-hidden="true">FCF yield</span>6%</td><td><span class="cell-key" aria-hidden="true">Score</span>0.006</td><td><span class="cell-key" aria-hidden="true">Target weight</span>60%</td></tr>
+          <tr><th scope="row">Harbour Glass</th><td><span class="cell-key" aria-hidden="true">ROIC</span>8%</td><td><span class="cell-key" aria-hidden="true">FCF yield</span>5%</td><td><span class="cell-key" aria-hidden="true">Score</span>0.004</td><td><span class="cell-key" aria-hidden="true">Target weight</span>40%</td></tr>
+          <tr><th scope="row">Linden Paper</th><td><span class="cell-key" aria-hidden="true">ROIC</span>12%</td><td><span class="cell-key" aria-hidden="true">FCF yield</span>0%</td><td><span class="cell-key" aria-hidden="true">Score</span>0</td><td><span class="cell-key" aria-hidden="true">Target weight</span>0%</td></tr></tbody>
+        </table>
+        <div><p>Alder Works: 0.10 × 0.06 = 0.006. Its share of the total score is 0.006 / 0.010 = 60%.</p>
+        <p>An asset with a negative input is excluded. A zero score receives zero weight. If no score is positive, the method returns no portfolio.</p></div>
+      </div>
+    </details>
+    <a class="bank-link" href="{{research_url}}">Read the method <span aria-hidden="true">↗</span></a>
+  </div></div>
+</section>
+<section class="ownership wood" aria-labelledby="ownership-title"><div class="bank-wrap">
+  <div class="ownership-row">
+    <div class="ownership-copy loose-paper"><p class="bank-kicker">Ownership model under research</p><h2 id="ownership-title">Ownership and authorisation.</h2></div>
+    <article class="mandate"><div>{{mandate}}</div><h3>Shared method</h3>{{group_icon}}<p>Participants could use the same rules to calculate portfolio weights.</p></article>
+    <article class="mandate"><div>{{mandate}}</div><h3>Individual holdings</h3>{{person_icon}}<p>The proposed model attributes holdings to each participant. Verifying ownership remains an open research question.</p></article>
+    <article class="mandate"><div>{{mandate}}</div><h3>Explicit mandates</h3>{{contract_icon}}<p>The owner must authorise a payment. A portfolio weight grants no payment authority.</p></article>
+  </div>
+  <p class="ownership-note">Joining the VOLPAROSSA network does not enrol anyone in a financial account or commit money to an investment.</p>
+</div></section>
+<section class="payment" id="payment-test" aria-labelledby="payment-title"><div class="bank-wrap pay-grid">
+  <div class="pay-copy"><p class="bank-kicker">Local paper-payment test</p><h2 id="payment-title">One instruction. <br>One transfer.</h2>
+    <p>Bank saves the signed instruction before submitting it. After a restart, it checks that instruction against Core’s receipt. Retrying the same accepted instruction leaves both balances unchanged.</p>
+  </div>
+  <div class="instruction">{{instruction}}
+    <div class="instruction-text"><p class="bank-kicker">Signed instruction</p>
+    <dl><div><dt>From:</dt><dd>Participant A</dd></div><div><dt>To:</dt><dd>Participant B</dd></div><div><dt>Transfer:</dt><dd>70 TEST</dd></div></dl></div>
+  </div>
+  <div class="balances"><table>
+    <caption>Local test with the Core library</caption>
+    <thead><tr><th scope="col">Local test state</th><th scope="col">Participant A</th><th scope="col">Participant B</th></tr></thead>
+    <tbody><tr><th scope="row">Start</th><td><span class="cell-key" aria-hidden="true">Participant A</span>100 TEST</td><td><span class="cell-key" aria-hidden="true">Participant B</span>0 TEST</td></tr><tr><th scope="row">After transfer</th><td><span class="cell-key" aria-hidden="true">Participant A</span>30 TEST</td><td><span class="cell-key" aria-hidden="true">Participant B</span>70 TEST</td></tr><tr><th scope="row">After restart and retry</th><td><span class="cell-key" aria-hidden="true">Participant A</span>30 TEST</td><td><span class="cell-key" aria-hidden="true">Participant B</span>70 TEST</td></tr></tbody>
+  </table></div>
+</div></section>
+<section class="core-band paper" aria-labelledby="core-title">
+  <div class="facade-art">{{facade}}</div>
+  <div class="bank-wrap core-grid"><div><p class="bank-kicker">Bank and Core</p><h2 id="core-title">Bank and Core.</h2><a class="bank-link" href="{{core_url}}">Explore the transaction layer <span aria-hidden="true">↗</span></a></div>
+    <dl class="core-roles"><div>{{contract_icon}}<dt>Bank</dt><dd>Calculates portfolio weights and retains the owner’s signed instruction.</dd></div>
+    <div>{{database_icon}}<dt>Core</dt><dd>Records balances and receipts and checks whether the same instruction has already been accepted.</dd></div></dl>
+  </div>
+</section>
+<section class="research-band wood" aria-label="Research status">
+  <div class="research-art">{{research}}</div><div class="bank-wrap"><div class="research-sheet loose-paper">
+  <div><h2>Demonstrated locally</h2><p>Calculate weights from supplied ratios, transfer fictitious TEST units and recover the original result after a restart.</p><a class="bank-link" href="{{test_url}}">Read the test record <span aria-hidden="true">↗</span></a></div>
+  <div><h2>Open research</h2><p>Verify real holdings, establish agreement between independent participants and settle transfers through external providers.</p><a class="bank-link" href="{{research_url}}">Explore the research <span aria-hidden="true">↗</span></a></div>
+  </div></div>
+</section>
+<section class="closing paper" aria-labelledby="closing-title">
+  <div class="stamp-art">{{stamp}}</div><div class="bank-wrap"><div class="closing-copy">
+    <h2 id="closing-title">Inspect the method. Reproduce the test.</h2>
+    <div class="bank-actions"><a class="bank-button filled" href="{{research_url}}">Read the research <span aria-hidden="true">↗</span></a><a class="bank-button" href="{{test_url}}#run-locally">Run the local example <span aria-hidden="true">↗</span></a></div>
+    <a class="bank-link" href="{{repository}}">Bank repository <span aria-hidden="true">↗</span></a>
+  </div></div>
+</section>
