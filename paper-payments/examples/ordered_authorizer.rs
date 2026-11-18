@@ -77,7 +77,13 @@ fn initialize(owner: &Path, ledger: [u8; 32], input: &mut dyn Read) -> Result<()
     let private = staging.path().join("core");
     create_genesis(&private, bytes)?;
     context(&private, ledger)?;
-    renameat_with(CWD, &private, CWD, owner.join("core"), RenameFlags::NOREPLACE)?;
+    renameat_with(
+        CWD,
+        &private,
+        CWD,
+        owner.join("core"),
+        RenameFlags::NOREPLACE,
+    )?;
     File::open(owner)?.sync_all()?;
     Ok(())
 }
