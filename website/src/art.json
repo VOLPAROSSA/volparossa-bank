@@ -1,63 +1,66 @@
 {
-  "chamber": {
+  "workshop": {
     "widths": [
       900,
-      1280,
-      1672
+      1440,
+      2040
     ],
-    "height": 941,
-    "sizes": "(max-width: 700px) 100vw, 67vw",
+    "height": 770,
+    "sizes": "100vw",
     "mobile": true
   },
-  "ledger": {
+  "weights": {
     "widths": [
-      540,
-      900,
+      480,
+      800,
+      1120
+    ],
+    "height": 534,
+    "sizes": "(max-width: 700px) 100vw, 47vw"
+  },
+  "card": {
+    "widths": [
+      600,
+      960,
       1440
     ],
-    "height": 600,
-    "sizes": "(max-width: 700px) 100vw, (max-width: 1350px) 60vw, 800px"
+    "height": 481,
+    "sizes": "(max-width: 700px) 100vw, 49vw"
   },
-  "mandate": {
+  "order": {
     "widths": [
-      360,
-      600
+      600,
+      1080,
+      1600
     ],
-    "height": 600,
-    "sizes": "(max-width: 700px) 90vw, 295px"
+    "height": 593,
+    "sizes": "(max-width: 700px) 100vw, 60vw"
   },
-  "instruction": {
+  "manuals": {
     "widths": [
-      400,
-      720
+      480,
+      800,
+      1200
     ],
-    "height": 424,
-    "sizes": "(max-width: 700px) 90vw, 360px"
+    "height": 445,
+    "sizes": "(max-width: 700px) 100vw, 44vw"
   },
-  "facade": {
+  "tools": {
     "widths": [
-      540,
-      960
+      800,
+      1440,
+      2000
     ],
-    "height": 370,
+    "height": 307,
+    "sizes": "100vw"
+  },
+  "imprint": {
+    "widths": [
+      480,
+      800,
+      1200
+    ],
+    "height": 470,
     "sizes": "(max-width: 700px) 100vw, 40vw"
-  },
-  "research": {
-    "widths": [
-      800,
-      1440,
-      2000
-    ],
-    "height": 667,
-    "sizes": "100vw"
-  },
-  "stamp": {
-    "widths": [
-      800,
-      1440,
-      2000
-    ],
-    "height": 667,
-    "sizes": "100vw"
   }
 }
