@@ -20,6 +20,8 @@ payments are available.** Portfolio value can fall. This is neither investment
 advice nor a deposit guarantee; legal qualification is required before handling
 real money or securities.
 
+[Explore the portfolio method and the local payment test on the Bank website](https://volparossa.org/volparossa-bank/).
+
 ## Portfolio method
 
 The confirmed starting rule is `score = ROIC × FCF-yield`, with neither input negative.
