@@ -53,6 +53,18 @@ jobs:
         env:
           TMPDIR: ${{ runner.temp }}
         run: cargo +1.98.1 test --locked --offline --manifest-path paper-payments/Cargo.toml --all-targets
+      - name: Run the Bank ordered TEST transfer through retained Core receipts
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          import subprocess
+          import tempfile
+
+          with tempfile.TemporaryDirectory(prefix="bank-ordered-", dir=os.environ["RUNNER_TEMP"]) as private:
+              subprocess.run(["cargo", "+1.98.1", "run", "--locked", "--offline", "--quiet",
+                              "--manifest-path", "paper-payments/Cargo.toml", "--example", "ordered_transfer",
+                              "--", str(Path(private) / "state")], check=True, timeout=180)
 
   resolve-core-lock:
     if: >-
