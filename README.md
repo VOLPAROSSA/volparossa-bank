@@ -42,6 +42,39 @@ or determine which legal limits apply.
 cargo test --offline
 ```
 
+### Preview a fictitious contribution
+
+The Bank CLI shows how a new TEST budget divides into whole units of fictitious
+assets. It applies each target weight to the full budget, rounds down at the
+supplied TEST price, and limits each purchase to the ownership headroom after
+aggregate holdings and reservations. Cash left by caps or rounding stays
+unallocated. The preview submits no payments or orders.
+
+For a synthetic snapshot valued at Unix time 1000, allow observations up to 100
+seconds old and keep projected ownership strictly below 1/5 of issued units.
+
+```sh
+cargo run --locked --offline -- 100 1000 100 1 5 EUR <<'DATA'
+SNAPSHOT invented-fixture-v1 500 800
+TEST-A 100000 30000 900 10 100 13 3
+TEST-B 100000 10000 950 8 200 0 0
+DATA
+```
+
+The header records the synthetic source identifier and the common reporting
+period's start and end as Unix seconds. In this fixture, ROIC means after-tax
+operating profit divided by positive average invested capital. FCF-yield means
+operating cash flow less capital expenditure divided by positive equity market
+capitalization. Both ratios are entered in parts per million. The source label
+is supplied by the caller.
+
+Each asset row supplies the asset ID, ROIC ppm, FCF-yield ppm, snapshot time,
+positive whole TEST price, issued units, aggregate units held and reserved
+units. The time applies to the entire row. `EUR` labels the supplied accounting
+inputs for the ratios. The example uses invented ratios and prices. Its 3/4
+and 1/4 target weights produce 3 units of each asset, costing 30 and 24 TEST,
+with 46 TEST unallocated. Run with `--help` for the input format.
+
 ## Core-backed paper payments
 
 The separate `paper-payments` Rust package calls the actual, commit-pinned core
