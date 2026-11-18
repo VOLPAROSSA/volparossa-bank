@@ -1,0 +1,63 @@
+{
+  "chamber": {
+    "widths": [
+      900,
+      1280,
+      1672
+    ],
+    "height": 941,
+    "sizes": "(max-width: 700px) 100vw, 67vw",
+    "mobile": true
+  },
+  "ledger": {
+    "widths": [
+      540,
+      900,
+      1440
+    ],
+    "height": 600,
+    "sizes": "(max-width: 700px) 100vw, (max-width: 1350px) 60vw, 800px"
+  },
+  "mandate": {
+    "widths": [
+      360,
+      600
+    ],
+    "height": 600,
+    "sizes": "(max-width: 700px) 90vw, 295px"
+  },
+  "instruction": {
+    "widths": [
+      400,
+      720
+    ],
+    "height": 424,
+    "sizes": "(max-width: 700px) 90vw, 360px"
+  },
+  "facade": {
+    "widths": [
+      540,
+      960
+    ],
+    "height": 370,
+    "sizes": "(max-width: 700px) 100vw, 40vw"
+  },
+  "research": {
+    "widths": [
+      800,
+      1440,
+      2000
+    ],
+    "height": 667,
+    "sizes": "100vw"
+  },
+  "stamp": {
+    "widths": [
+      800,
+      1440,
+      2000
+    ],
+    "height": 667,
+    "sizes": "100vw"
+  }
+}
