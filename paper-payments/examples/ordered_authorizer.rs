@@ -10,7 +10,6 @@ use std::{
 };
 
 use ed25519_dalek::SigningKey;
-use rand_core::{OsRng, RngCore as _};
 use rustix::fs::{CWD, RenameFlags, renameat_with};
 use volparossa_bank_paper_payments::{Authorization, OrderedIntent};
 use volparossa_transaction::{Action, Command, OrderedStore};
@@ -117,9 +116,7 @@ fn prepare(
     }
     let signer = SigningKey::from_bytes(&seed);
     let mut nonce = [0; 32];
-    OsRng
-        .try_fill_bytes(&mut nonce)
-        .map_err(|_| "random nonce unavailable")?;
+    getrandom::fill(&mut nonce).map_err(|_| "random nonce unavailable")?;
     OrderedIntent::prepare(
         path,
         core,

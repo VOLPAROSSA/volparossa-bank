@@ -22,7 +22,7 @@ genesis. Its generated messages use Core's pinned CometBFT and Protobuf schemas.
 Direct adapter dependencies are `ed25519-dalek` (BSD-3-Clause), `prost`
 (Apache-2.0), `rustix` (Apache-2.0 with LLVM exception, Apache-2.0 or MIT), `sha2`
 (MIT or Apache-2.0) and `thiserror` (MIT or Apache-2.0). Test/example dependencies
-are `rand_core` and `tempfile` (each MIT or Apache-2.0).
+are `getrandom` and `tempfile` (each MIT or Apache-2.0).
 
 The core also brings its locked transitive dependency graph, including `rusqlite`
 and `libsqlite3-sys`. Versions, source identifiers and registry checksums are in

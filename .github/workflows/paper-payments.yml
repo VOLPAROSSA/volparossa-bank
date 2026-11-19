@@ -47,10 +47,12 @@ jobs:
           cargo +1.98.1 fmt --manifest-path paper-payments/Cargo.toml --all -- --check
       - name: Check the dependency-free portfolio prototype
         run: cargo +1.98.1 test --locked --offline
+      - id: archive
+        uses: VOLPAROSSA/.github/actions/ubuntu-archive@e3f98bbc538f5df580b78c8a0d8bd932dfe3e381
       - name: Install the pinned compiler for Core's ABCI schemas
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends \
+          sudo apt-get -c "${{ steps.archive.outputs.config }}" update
+          sudo apt-get -c "${{ steps.archive.outputs.config }}" install --yes --no-install-recommends \
             protobuf-compiler=3.21.12-8.2ubuntu0.4 \
             libprotoc32t64=3.21.12-8.2ubuntu0.4 \
             libprotobuf32t64=3.21.12-8.2ubuntu0.4
@@ -115,11 +117,15 @@ jobs:
           test "$(git rev-parse HEAD)" = "$BANK_REVISION"
           test -z "$(git status --porcelain --untracked-files=all)"
           python3 -B - <<'PY'
-          import pathlib,tomllib
+          import os,pathlib,re,tomllib
           manifest=tomllib.loads(pathlib.Path('paper-payments/Cargo.toml').read_text())
-          assert manifest['dependencies']['volparossa-transaction']=={
-            'git':'https://github.com/VOLPAROSSA/volparossa',
-            'rev':'edf569300acbdf5e7715b5192ffbb293235b15ab'}
+          dependency=manifest['dependencies']['volparossa-transaction']
+          revision=dependency['rev']
+          assert re.fullmatch('[0-9a-f]{40}',revision)
+          assert dependency=={'git':'https://github.com/VOLPAROSSA/volparossa','rev':revision}
+          assert manifest['dev-dependencies']['volparossa-transaction-abci']==dependency
+          with open(os.environ['GITHUB_ENV'],'a') as env:
+            print('CORE_REVISION='+revision,file=env)
           PY
           umask 077
           lock_cargo="$RUNNER_TEMP/bank-core-lock-cargo-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
@@ -143,7 +149,7 @@ jobs:
         id: resolve
         run: >-
           cargo +1.98.1 update --manifest-path paper-payments/Cargo.toml
-          -p volparossa-transaction --precise edf569300acbdf5e7715b5192ffbb293235b15ab
+          -p volparossa-transaction --precise "$CORE_REVISION"
       - name: Verify the resulting graph with locked dependency acquisition
         id: fetch
         run: cargo +1.98.1 fetch --locked --manifest-path paper-payments/Cargo.toml
@@ -169,15 +175,17 @@ jobs:
           assert 0<len(before)<=4*1024*1024 and 0<len(after)<=4*1024*1024
           assert len(difference)<=512*1024
           packages=tomllib.loads(after.decode())['package']
-          transaction=[package for package in packages if package['name']=='volparossa-transaction']
-          expected='git+https://github.com/VOLPAROSSA/volparossa?rev=edf569300acbdf5e7715b5192ffbb293235b15ab#edf569300acbdf5e7715b5192ffbb293235b15ab'
-          assert len(transaction)==1 and transaction[0]['source']==expected
+          revision=os.environ['CORE_REVISION']
+          expected=f'git+https://github.com/VOLPAROSSA/volparossa?rev={revision}#{revision}'
+          for name in ('volparossa-transaction','volparossa-transaction-abci'):
+            sources=[package.get('source') for package in packages if package['name']==name]
+            assert sources==[expected]
           versions_path=output/'versions.json'
           versions=json.loads(versions_path.read_bytes()) if versions_path.exists() else None
           digest=lambda raw:hashlib.sha256(raw).hexdigest()
           receipt=dict(version=1,kind='bank-core-lock-resolution',bank_revision=os.environ['BANK_REVISION'],
             bank_tree=git('rev-parse','HEAD^{tree}').decode().strip(),
-            core_revision='edf569300acbdf5e7715b5192ffbb293235b15ab',
+            core_revision=revision,
             manifest_sha256=digest(pathlib.Path('paper-payments/Cargo.toml').read_bytes()),
             lock_before_sha256=digest(before),lock_after_sha256=digest(after),
             diff_sha256=digest(difference),packages=len(packages),toolchain_versions=versions,

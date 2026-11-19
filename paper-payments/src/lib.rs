@@ -15,7 +15,7 @@ pub use ordered::OrderedIntent;
 
 use std::{fs::File, path::Path};
 
-use ed25519_dalek::SigningKey;
+use ed25519_dalek::{Signer as _, SigningKey};
 use prost::Message;
 use sha2::{Digest as _, Sha256};
 use volparossa_transaction::{
@@ -24,6 +24,18 @@ use volparossa_transaction::{
 
 const MAX_SIGNED_BYTES: usize = 4096;
 const MAX_INTENT_BYTES: usize = 8192;
+
+struct IntentSigner<'a>(&'a SigningKey);
+
+impl volparossa_transaction::CommandSigner for IntentSigner<'_> {
+    fn public_key(&self) -> [u8; 32] {
+        self.0.verifying_key().to_bytes()
+    }
+
+    fn sign_ed25519(&self, preimage: &[u8]) -> Result<[u8; 64], volparossa_transaction::Error> {
+        Ok(self.0.sign(preimage).to_bytes())
+    }
+}
 
 /// Failures never imply that an already issued core command was rolled back.
 #[derive(Debug, thiserror::Error)]
@@ -99,9 +111,9 @@ impl Intent {
         authorization: Authorization,
     ) -> Result<Self, Error> {
         let ledger = core.ledger_id();
-        let command_bytes = SignedCommand::sign(
+        let command_bytes = SignedCommand::sign_with(
             ledger,
-            signer,
+            &IntentSigner(signer),
             command,
             authorization.valid_from,
             authorization.expires,

@@ -8,14 +8,16 @@ use std::{
 };
 
 use ed25519_dalek::SigningKey;
-use rand_core::{OsRng, RngCore as _};
+use getrandom::{SysRng, rand_core::UnwrapErr};
 use volparossa_bank_paper_payments::{Authorization, Observation, OrderedIntent};
 use volparossa_transaction::{
     Action, Balance, Block, BlockTime, Command, GenesisAccount, OrderedStore, Receipt,
 };
 
 fn id() -> [u8; 32] {
-    std::array::from_fn(|_| OsRng.next_u32().to_le_bytes()[0])
+    let mut bytes = [0; 32];
+    getrandom::fill(&mut bytes).expect("OS entropy for a TEST identifier");
+    bytes
 }
 fn block(height: u64, seconds: u64, bytes: Vec<u8>) -> Block {
     Block {
@@ -40,8 +42,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Err("canonical fixture parent required".into());
     }
     fs::DirBuilder::new().mode(0o700).create(&root)?;
-    let payer = SigningKey::generate(&mut OsRng);
-    let recipient = SigningKey::generate(&mut OsRng);
+    let payer = SigningKey::generate(&mut UnwrapErr(SysRng));
+    let recipient = SigningKey::generate(&mut UnwrapErr(SysRng));
     let payer_id = payer.verifying_key().to_bytes();
     let recipient_id = recipient.verifying_key().to_bytes();
     let mut core = OrderedStore::create(

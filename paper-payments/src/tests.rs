@@ -10,11 +10,12 @@ use std::{
 };
 
 use super::*;
-use rand_core::{OsRng, RngCore as _};
 use volparossa_transaction::{Balance, Error as CoreError, GenesisAccount};
 
 fn random_nonce() -> [u8; 32] {
-    std::array::from_fn(|_| OsRng.next_u32().to_le_bytes()[0])
+    let mut bytes = [0; 32];
+    getrandom::fill(&mut bytes).expect("OS entropy for a TEST identifier");
+    bytes
 }
 
 fn key(id: u8) -> SigningKey {
@@ -266,9 +267,9 @@ fn different_accepted_command_with_same_id_is_not_this_intents_receipt() {
     let temp = tempfile::tempdir().unwrap();
     let mut core = store(&temp.path().join("core"));
     let intended = reserve(&temp.path().join("intended"), &core);
-    let other = SignedCommand::sign(
+    let other = SignedCommand::sign_with(
         core.ledger_id(),
-        &key(1),
+        &crate::IntentSigner(&key(1)),
         Command {
             operation_id: [1; 32],
             payer: owner(1),

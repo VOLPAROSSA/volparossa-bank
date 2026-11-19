@@ -4,12 +4,14 @@
 use std::{error::Error, fs, os::unix::fs::DirBuilderExt as _, path::PathBuf};
 
 use ed25519_dalek::SigningKey;
-use rand_core::{OsRng, RngCore as _};
+use getrandom::{SysRng, rand_core::UnwrapErr};
 use volparossa_bank_paper_payments::{Authorization, Intent, Observation};
 use volparossa_transaction::{Action, Balance, Command, GenesisAccount, Store, TEST_UNIT};
 
 fn random_id() -> [u8; 32] {
-    std::array::from_fn(|_| OsRng.next_u32().to_le_bytes()[0])
+    let mut bytes = [0; 32];
+    getrandom::fill(&mut bytes).expect("OS entropy for a TEST identifier");
+    bytes
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -22,8 +24,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Err("provide exactly one new absolute directory".into());
     }
     fs::DirBuilder::new().mode(0o700).create(&root)?;
-    let payer = SigningKey::generate(&mut OsRng);
-    let recipient = SigningKey::generate(&mut OsRng);
+    let payer = SigningKey::generate(&mut UnwrapErr(SysRng));
+    let recipient = SigningKey::generate(&mut UnwrapErr(SysRng));
     let payer_id = payer.verifying_key().to_bytes();
     let recipient_id = recipient.verifying_key().to_bytes();
     let mut core = Store::create(
