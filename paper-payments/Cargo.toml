@@ -21,6 +21,7 @@ volparossa-transaction = { git = "https://github.com/VOLPAROSSA/volparossa", rev
 [dev-dependencies]
 rand_core = { version = "0.6.4", features = ["getrandom"] }
 tempfile = "3.20.0"
+volparossa-transaction-abci = { git = "https://github.com/VOLPAROSSA/volparossa", rev = "edf569300acbdf5e7715b5192ffbb293235b15ab" }
 
 [lints.rust]
 unsafe_code = "forbid"

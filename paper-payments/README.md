@@ -41,3 +41,23 @@ not run CometBFT or claim distributed agreement. It retains the private fictitio
 fixture, but saves no signing key. The tests separately kill and join an owned Bank
 process after staging and after Core commit, then reopen and reconcile without a
 second debit. Existing local-mode tests continue to cover their original contract.
+
+## Authorize a command for an external TEST consensus trial
+
+Build `ordered_authorizer` with `cargo build --locked --manifest-path paper-payments/Cargo.toml --example ordered_authorizer`.
+Use a canonical absolute owner directory with permissions 0700. Its initial contents must be empty.
+Identifiers are 64 lowercase hexadecimal characters. Amounts use whole TEST units and validity
+bounds use Unix seconds.
+
+| Command arguments | Standard input | Standard output |
+| --- | --- | --- |
+| `init OWNER LEDGER` | Public ABCI app-state genesis JSON, up to 16,384 bytes | `ready` |
+| `reserve OWNER LEDGER OP VALID_FROM EXPIRES RECIPIENT UNITS` | Exactly 32 raw bytes of an enrolled payer's TEST signing seed | Original signed reserve bytes |
+| `commit OWNER LEDGER OP VALID_FROM EXPIRES RESERVATION` | Exactly 32 raw bytes of the enrolled payer's TEST signing seed | Original signed commit bytes |
+| `replay OWNER LEDGER OP` | None | The original signed bytes for the retained operation |
+
+Initialization runs Core's ABCI `InitChain` and checks the resulting ledger against the caller's
+independently observed ledger. The owner context stays at genesis height zero. Each authorization
+persists a private intent before releasing bytes. Replay reopens that intent and requires only
+the ledger and original operation ID. The trial driver submits the bytes to the validators and
+observes their committed blocks and receipts. Keep the signed bytes inside the private trial.
