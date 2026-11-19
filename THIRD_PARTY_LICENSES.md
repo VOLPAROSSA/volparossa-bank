@@ -13,6 +13,10 @@ recorded in `paper-payments/Cargo.toml` and `paper-payments/Cargo.lock`; no unpi
 branch or alternate local implementation is used. Upstream license texts and
 notices remain unchanged. There are no Bank-local patches to the imported core.
 
+The ordered authorizer example uses the same revision of the GPL-3.0-only
+`volparossa-transaction-abci` library to initialize the owner's public TEST
+genesis. Its generated messages use Core's pinned CometBFT and Protobuf schemas.
+
 ## Registry dependencies
 
 Direct adapter dependencies are `ed25519-dalek` (BSD-3-Clause), `prost`
