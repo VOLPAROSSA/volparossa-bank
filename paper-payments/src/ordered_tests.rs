@@ -2,7 +2,6 @@
 //! Actual Bank/core ordered TEST fixtures; supplied block order is NOT consensus.
 use super::*;
 use crate::Intent;
-use rand_core::{OsRng, RngCore as _};
 use std::{
     fs,
     os::unix::{
@@ -25,7 +24,9 @@ fn owner(id: u8) -> [u8; 32] {
     key(id).verifying_key().to_bytes()
 }
 fn nonce() -> [u8; 32] {
-    std::array::from_fn(|_| OsRng.next_u32().to_le_bytes()[0])
+    let mut bytes = [0; 32];
+    getrandom::fill(&mut bytes).expect("OS entropy for a TEST identifier");
+    bytes
 }
 fn accounts() -> [GenesisAccount; 2] {
     [
@@ -342,9 +343,9 @@ fn altered_noncanonical_or_cross_mode_retained_envelopes_are_rejected() {
             }
             "version" => retained.version = 1,
             "local-signed" => {
-                retained.signed = SignedCommand::sign(
+                retained.signed = SignedCommand::sign_with(
                     core.ledger_id(),
-                    &key(1),
+                    &crate::IntentSigner(&key(1)),
                     Command {
                         operation_id: [1; 32],
                         payer: owner(1),

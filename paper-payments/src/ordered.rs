@@ -13,7 +13,8 @@ use sha2::{Digest as _, Sha256};
 use volparossa_transaction::{Command, LedgerId, OrderedStore, SignedCommand};
 
 use crate::{
-    Authorization, Error, MAX_SIGNED_BYTES, Observation, RetainedIntent, check_receipt, disk,
+    Authorization, Error, IntentSigner, MAX_SIGNED_BYTES, Observation, RetainedIntent,
+    check_receipt, disk,
 };
 
 const ORDERED_INTENT_VERSION: u32 = 2;
@@ -79,9 +80,9 @@ impl OrderedIntent {
         command: Command,
         authorization: Authorization,
     ) -> Result<Self, Error> {
-        let command_bytes = SignedCommand::sign_ordered(
+        let command_bytes = SignedCommand::sign_ordered_with(
             core.ledger_id(),
-            signer,
+            &IntentSigner(signer),
             command,
             authorization.valid_from,
             authorization.expires,
