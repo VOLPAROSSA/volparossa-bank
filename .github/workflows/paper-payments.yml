@@ -58,11 +58,11 @@ jobs:
             libprotobuf32t64=3.21.12-8.2ubuntu0.4
           test "$(protoc --version)" = 'libprotoc 3.21.12'
       - name: Lint the core-backed adapter
-        run: cargo +1.98.1 clippy --locked --offline --manifest-path paper-payments/Cargo.toml --all-targets -- -D warnings
+        run: cargo +1.98.1 clippy --locked --offline --manifest-path paper-payments/Cargo.toml --all-features --all-targets -- -D warnings
       - name: Exercise local TEST-unit intents and actual crash recovery
         env:
           TMPDIR: ${{ runner.temp }}
-        run: cargo +1.98.1 test --locked --offline --manifest-path paper-payments/Cargo.toml --all-targets
+        run: cargo +1.98.1 test --locked --offline --manifest-path paper-payments/Cargo.toml --all-features --all-targets
       - name: Run the Bank ordered TEST transfer through retained Core receipts
         shell: python
         run: |
@@ -124,6 +124,7 @@ jobs:
           assert re.fullmatch('[0-9a-f]{40}',revision)
           assert dependency=={'git':'https://github.com/VOLPAROSSA/volparossa','rev':revision}
           assert manifest['dev-dependencies']['volparossa-transaction-abci']==dependency
+          assert manifest['dependencies']['volparossa-transaction-abci']=={**dependency, 'optional': True}
           with open(os.environ['GITHUB_ENV'],'a') as env:
             print('CORE_REVISION='+revision,file=env)
           PY

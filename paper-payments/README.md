@@ -44,7 +44,13 @@ second debit. Existing local-mode tests continue to cover their original contrac
 
 ## Authorize a command for an external TEST consensus trial
 
-Build `ordered_authorizer` with `cargo build --locked --manifest-path paper-payments/Cargo.toml --example ordered_authorizer`.
+Install the owner’s TEST signing tool from the Bank checkout with Rust 1.98.1 and the Protobuf compiler. The `owner-cli` feature enables the pinned Core ABCI genesis reader. The existing `ordered_authorizer` example accepts the same commands.
+
+```sh
+cargo +1.98.1 install --locked --path paper-payments --features owner-cli --bin bank-test-authorizer
+bank-test-authorizer --help
+```
+
 Use a canonical absolute owner directory with permissions 0700. Its initial contents must be empty.
 Identifiers are 64 lowercase hexadecimal characters. Amounts use whole TEST units and validity
 bounds use Unix seconds.
@@ -54,10 +60,14 @@ bounds use Unix seconds.
 | `init OWNER LEDGER` | Public ABCI app-state genesis JSON, up to 16,384 bytes | `ready` |
 | `reserve OWNER LEDGER OP VALID_FROM EXPIRES RECIPIENT UNITS` | Exactly 32 raw bytes of an enrolled payer's TEST signing seed | Original signed reserve bytes |
 | `commit OWNER LEDGER OP VALID_FROM EXPIRES RESERVATION` | Exactly 32 raw bytes of the enrolled payer's TEST signing seed | Original signed commit bytes |
+| `cancel OWNER LEDGER OP VALID_FROM EXPIRES RESERVATION` | Exactly 32 raw bytes of the enrolled payer’s TEST signing seed | Original signed cancellation bytes |
 | `replay OWNER LEDGER OP` | None | The original signed bytes for the retained operation |
 
 Initialization runs Core's ABCI `InitChain` and checks the resulting ledger against the caller's
 independently observed ledger. The owner context stays at genesis height zero. Each authorization
 persists a private intent before releasing bytes. Replay reopens that intent and requires only
-the ledger and original operation ID. The trial driver submits the bytes to the validators and
+the ledger and original operation ID. Either commit or cancel can name an existing reservation.
+Cancel requests the release of its reserved TEST units to the payer. The validators determine
+the result when they order the command. Replaying a saved cancellation returns its original
+bytes even after the signing seed has been removed. The trial driver submits the bytes to the validators and
 observes their committed blocks and receipts. Keep the signed bytes inside the private trial.
