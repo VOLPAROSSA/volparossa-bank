@@ -88,6 +88,7 @@ auctions** with signed orders, independently checked matching and a documented
 tie-breaking rule. Order confidentiality, censorship resistance and prevention
 of front-running require separate protocol work; broadcasting orders is not
 private price discovery. With no matching liquidity there is no executable price.
+The [signed TEST auction](PAPER_AUCTION.md) implements the price and volume calculation for a closed local order book.
 For complementary operation, compare independently sourced external quotes and
 allow real arbitrage only through authorized funded gateways. Reject stale or
 conflicting sources rather than letting a peer majority invent a market price.

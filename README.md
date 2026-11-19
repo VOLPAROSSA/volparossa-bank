@@ -77,6 +77,14 @@ inputs for the ratios. The example uses invented ratios and prices. Its 3/4
 and 1/4 target weights produce 3 units of each asset, costing 30 and 24 TEST,
 with 46 TEST unallocated. Run with `--help` for the input format.
 
+## Discover a price for a fictitious asset
+
+The offline Bank auction accepts one signed limit order per enrolled TEST participant.
+Independent readers can calculate the same indicative price from the same roster
+and orders. The four-order example crosses seven fictional shares at 10 TEST each.
+With no crossing orders the reader reports no price. No funds or shares move.
+[Run the example and inspect its matching rules](docs/PAPER_AUCTION.md).
+
 ## Core-backed paper payments
 
 The separate `paper-payments` Rust package calls the actual, commit-pinned core
