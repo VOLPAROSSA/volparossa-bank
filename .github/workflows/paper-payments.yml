@@ -48,10 +48,9 @@ jobs:
       - name: Check the dependency-free portfolio prototype
         run: cargo +1.98.1 test --locked --offline
       - id: archive
-        uses: VOLPAROSSA/.github/actions/ubuntu-archive@e3f98bbc538f5df580b78c8a0d8bd932dfe3e381
+        uses: VOLPAROSSA/.github/actions/ubuntu-archive@0b26926c9893b01713aded0d331efb1333ddf0c0
       - name: Install the pinned compiler for Core's ABCI schemas
         run: |
-          sudo apt-get -c "${{ steps.archive.outputs.config }}" update
           sudo apt-get -c "${{ steps.archive.outputs.config }}" install --yes --no-install-recommends \
             protobuf-compiler=3.21.12-8.2ubuntu0.4 \
             libprotoc32t64=3.21.12-8.2ubuntu0.4 \
