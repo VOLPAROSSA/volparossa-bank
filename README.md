@@ -102,7 +102,13 @@ after a core commit, reopening, expired retries, conflicting signed commands and
 private-file checks. The runnable example ends at 30/70 TEST units after reopening.
 These are local application-to-core results, **not distributed settlement**.
 
-[Run the example and understand the boundaries →](docs/PAPER_PAYMENTS.md)
+The installable `bank-test-authorizer` prepares and reopens signed TEST reservations,
+commits and cancellations. Four CometBFT validators have executed the Bank reserve
+and commit flow, preserved all 100 fictitious units across a partition and
+returned the original receipts after restart and replay.
+[Install the owner tool](paper-payments/README.md#authorize-a-command-for-an-external-test-consensus-trial) ·
+[Four-validator trial](https://github.com/VOLPAROSSA/volparossa/actions/runs/44534425134) ·
+[Run the local example](docs/PAPER_PAYMENTS.md)
 
 ## Division of responsibilities
 
@@ -124,7 +130,7 @@ the ownership model, and distinguishes internal corrections from recovery after
 external settlement. The developing core contract is documented in
 [VOLPAROSSA](https://github.com/VOLPAROSSA/volparossa/blob/main/docs/services/TRANSACTION_LAYER.md).
 
-Distributed consensus, authenticated positions, actual securities ownership,
+Independently verified client finality, authenticated positions, actual securities ownership,
 external payment gateways, market operation, private AML processing and recovery
 of forwarded funds are **not implemented**. Arithmetic and state-machine tests
 must not be presented as a working decentralized bank.
