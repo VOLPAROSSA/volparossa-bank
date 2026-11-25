@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 //! Replay a single fictional uniform-price auction with separately enrolled TEST signers.
+mod allocation;
 mod clearing;
 
 use clearing::{Limit, Side};
 use ed25519_dalek::{Signature, Signer as _, SigningKey, VerifyingKey};
 use sha2::{Digest as _, Sha256};
 use std::{
-    collections::BTreeSet,
+    collections::{BTreeMap, BTreeSet},
     env,
     error::Error,
     fmt::Write as _,
@@ -76,7 +77,9 @@ fn preimage(roster: &[u8; 32], key: &[u8; 32], order: Limit) -> Vec<u8> {
     bytes
 }
 
-fn verify(roster: &str, book: &str) -> Result<Option<clearing::Quote>> {
+type OrderBook = BTreeMap<[u8; 32], Limit>;
+
+fn verified_orders(roster: &str, book: &str) -> Result<OrderBook> {
     let mut lines = roster.lines();
     let batch = decode(lines.next().ok_or("missing batch identifier")?)?;
     if batch == [0; 32] {
@@ -96,7 +99,7 @@ fn verify(roster: &str, book: &str) -> Result<Option<clearing::Quote>> {
         return Err("empty membership".into());
     }
     let roster = roster_digest(&batch, &members);
-    let mut orders = Vec::new();
+    let mut orders = BTreeMap::new();
     for line in book.lines() {
         let fields: Vec<_> = line.split_ascii_whitespace().take(6).collect();
         let &[key, side, units, price, signature] = fields.as_slice() else {
@@ -122,9 +125,9 @@ fn verify(roster: &str, book: &str) -> Result<Option<clearing::Quote>> {
         let signature = Signature::from_bytes(&decode(signature)?);
         VerifyingKey::from_bytes(&key)?
             .verify_strict(&preimage(&roster, &key, order), &signature)?;
-        orders.push(order);
+        orders.insert(key, order);
     }
-    Ok(clearing::clear(&orders))
+    Ok(orders)
 }
 
 // Public deterministic TEST keys are confined to this printed synthetic sample.
@@ -171,20 +174,32 @@ fn main() -> Result<()> {
     match args.as_slice() {
         [cmd] if cmd == "sample-roster" => print!("{}", sample().0),
         [cmd] if cmd == "sample-orders" => print!("{}", sample().1),
-        [cmd, roster] if cmd == "verify" => {
+        [cmd, roster] if cmd == "verify" || cmd == "allocate" => {
             let members = limited(File::open(roster)?, (MAX_MEMBERS + 1) * 66)?;
             let book = limited(io::stdin().lock(), MAX_MEMBERS * 245)?;
-            match verify(&members, &book)? {
-                Some(quote) => println!(
-                    "TEST-SHARE: {} units at {} TEST per unit",
-                    quote.units, quote.price
-                ),
+            let orders = verified_orders(&members, &book)?;
+            match clearing::clear(orders.values()) {
+                Some(quote) => {
+                    println!(
+                        "TEST-SHARE: {} units at {} TEST per unit",
+                        quote.units, quote.price
+                    );
+                    if cmd == "allocate" {
+                        for (key, units) in allocation::fills(&orders, &quote) {
+                            let side = match orders[&key].side {
+                                Side::Buy => "buy",
+                                Side::Sell => "sell",
+                            };
+                            println!("{} {side} {units}", hex(&key));
+                        }
+                    }
+                }
                 None => println!("TEST-SHARE: no crossing orders"),
             }
         }
         _ => {
             return Err(
-                "usage: paper-auction sample-roster | sample-orders | verify ROSTER < ORDERS"
+                "usage: paper-auction sample-roster | sample-orders | verify|allocate ROSTER < ORDERS"
                     .into(),
             );
         }
@@ -195,6 +210,10 @@ fn main() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn verify(roster: &str, book: &str) -> Result<Option<clearing::Quote>> {
+        Ok(clearing::clear(verified_orders(roster, book)?.values()))
+    }
 
     #[test]
     fn signed_replay_is_order_independent_and_bound_to_the_batch() {

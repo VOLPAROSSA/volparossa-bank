@@ -20,7 +20,7 @@ pub(super) struct Quote {
     pub units: u128,
 }
 
-pub(super) fn clear(orders: &[Limit]) -> Option<Quote> {
+pub(super) fn clear<'a>(orders: impl IntoIterator<Item = &'a Limit>) -> Option<Quote> {
     // Supply changes at the limit. A bid remains eligible through its limit.
     let mut changes = BTreeMap::<u64, (u128, u128)>::new();
     let mut demand = 0_u128;
@@ -117,6 +117,6 @@ mod tests {
             })
         );
         assert_eq!(clear(&[buy]), None);
-        assert_eq!(clear(&[]), None);
+        assert_eq!(clear([]), None);
     }
 }

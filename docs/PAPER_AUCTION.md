@@ -15,6 +15,7 @@ trial=$(mktemp -d)
 "$auction" sample-roster > "$trial/roster"
 "$auction" sample-orders > "$trial/orders"
 "$auction" verify "$trial/roster" < "$trial/orders"
+"$auction" allocate "$trial/roster" < "$trial/orders"
 ```
 
 The buyers bid for seven units at up to 12 TEST and three at up to 9 TEST.
@@ -28,6 +29,21 @@ is the smaller of eligible supply and demand. Choose maximum volume, then the
 smallest absolute imbalance and then the lowest price. Only prices where supply
 or demand changes need evaluation. A bid is still eligible at its limit. An
 empty book, a single side, or a spread without a crossing produces no price.
+
+## Replay the indicative allocation
+
+The optional `allocate` command verifies the complete book before printing the
+quote and one line per filled order, sorted by enrolled public key. Each line
+gives the key, side and filled units. In the example the buyer bidding 12 takes
+seven units. The seller asking 8 supplies five, and the seller asking 10 supplies
+two. The bid at 9 receives zero and has no output line.
+
+Both sides receive the same crossing volume at the uniform price. Higher bids
+and lower asks fill first. Within a price level, give each participant one
+whole unit per round until its request is filled or supply runs out. In an
+incomplete last round the lower raw public key takes precedence. Enrollment
+therefore matters even for this final tie. Two readers can reverse the order
+of the signed input lines and compare the entire result byte for byte.
 
 ## Signed inputs
 
@@ -52,5 +68,5 @@ the raw roster digest, the signer's raw public key, one side byte (0 for buy,
 The last text field is the 64-byte Ed25519 signature in lowercase hex.
 
 This simulation calculates price and volume on the orders supplied. Enrollment,
-timely inclusion, confidential submission, funding, allocation and settlement
+timely inclusion, confidential submission, funding and settlement
 remain separate. Keep real financial data out of the fictional roster and book.
