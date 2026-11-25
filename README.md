@@ -82,6 +82,8 @@ with 46 TEST unallocated. Run with `--help` for the input format.
 The offline Bank auction accepts one signed limit order per enrolled TEST participant.
 Independent readers can calculate the same indicative price from the same roster
 and orders. The four-order example crosses seven fictional shares at 10 TEST each.
+The optional allocation command also shows how many units each signed order
+receives, including a partial fill of two units for the seller asking 10.
 With no crossing orders the reader reports no price. No funds or shares move.
 [Run the example and inspect its matching rules](docs/PAPER_AUCTION.md).
 
